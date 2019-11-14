@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="screen-orientation" content="portrait">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0"/>
+    <title>年会抽奖小程序</title>
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/wall.css">
+    <style type="text/css">
+        .wall { 
+            overflow: scroll;
+            background-repeat: repeat;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+        }
+        .mask {
+            -webkit-filter:blur(5px);
+            filter:blur(5px);
+        }
+        #main {
+            -webkit-transition: all 1s;
+            transition: all 1s;
+        }
+        .result-list {
+            text-align: center;
+            color: #4de7c8;
+            font-size: 30px;
+            line-height: 50px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            font-family: '幼圆';
+        }
+        .result-title {
+            text-align: center;
+            color: #4de7c8;
+            font-size: 40px;
+            margin-top: 100px;
+            font-family: '幼圆';
+        }
+
+    </style>
+</head>
+<body>
+<div id="main" class="wall">
+    <div class="result-title">获奖名单</div>
+    <div class="result-list" v-for="result in prz_results">
+        <div v-for="item in result">
+            {{item}}
+        </div>
+        <button v-on:click="output">下载名单 </button>
+    </div>
+</div>
+
+<!-- <script type="text/javascript" src="js/vue.js"></script> -->
+<!-- The code in the last line is commented out for Vue.js devtool to work -->
+<script src="https://vuejs.org/js/vue.js"></script>
+<script type="text/javascript">
+
+
+function exportToCsv(filename, rows) {
+        var processRow = function (row) {
+            var finalVal = '';
+            for (var j = 0; j < row.length; j++) {
+                var innerValue = row[j] === null ? '' : row[j].toString();
+                if (row[j] instanceof Date) {
+                    innerValue = row[j].toLocaleString();
+                };
+                var result = innerValue.replace(/"/g, '""');
+                if (result.search(/("|,|\n)/g) >= 0)
+                    result = '"' + result + '"';
+                if (j > 0)
+                    finalVal += ',';
+                finalVal += result;
+            }
+            return finalVal + '\n';
+        };
+
+        var csvFile = '';
+        for (var i = 0; i < rows.length; i++) {
+            csvFile += processRow(rows[i]);
+        }
+
+        var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+        if (navigator.msSaveBlob) { // IE 10+
+            navigator.msSaveBlob(blob, filename);
+        } else {
+            var link = document.createElement("a");
+            if (link.download !== undefined) { // feature detection
+                // Browsers that support HTML5 download attribute
+                var url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                // link.click();   // We don't want to click the link automatically
+                // document.body.removeChild(link);  // Same as above
+            }
+        }
+    }
+
+
+
+// After the lottery procedures, we obtain the items containing the choosed candidates
+// as the form:
+// 
+// >>> console.log(localStorage.Prize)
+// >>> Prize : "["name...","name...","name..."]"
+// Simply use JSON.parse(arguments) to convert the string of the comma-seperated array 
+// into the array
+//
+// To recognize them and log the information in the format that is convenient for blob
+// objects to output and for the result page to show, this code uses regulation expre-
+// -ssion to match and log the chinese charactors(names) and search the corresponding
+// object to obtain the detailed information waiting for display and data logging pr-
+// ocess.  
+//
+
+
+
+
+    new Vue({
+        el: '#main',
+        data: {
+            results: [],
+            prz_results : []// This container contains the prize results in
+                            // the format of {"prize": [...]} 
+                            // Exercise: Use objects instead
+        },
+        mounted () {
+
+            let vm = this; // What's with this code?
+            let locals = window.localStorage;
+
+            // LOGGING IN THE RESULTS OBJECTS(prz_results) --> THIS CODE WORKS 
+            // Import the prize list of candidates from the localStorage
+            // Match chinese charactor: /[\u3400-\u9F8F]/.test(arguments);
+            
+            // !!! The JSON CSV generator use the array of [['name','name_en'],[...]], each lower level
+            // !!! array as each row and each elements in the array(string) as the column
+            // !!! For this application we just output the name and English name for the lack of time
+            //
+            // !!! The following code outputs the ['PRIZ_CAT','name</br>name_en','...',...] array for all 
+            // !!! prize categories
+
+            for(let i in locals ){            // i: The names of the items in the localStorage
+                if(/[\u3400-\u9F8F]/g.test(i))
+                    {   
+                        // OBJECT OF ARRAYS OF AN STRING
+                        // Now the prz_results should be {"priz1": [...,...,...],[...], "priz2": ...}
+                        // In order to by pass the quirky Vue.js debugging issues, use localStorage to make results visible
+                        let tmp = JSON.parse(localStorage.getItem(i));
+                        let tmp_s = i.toString();
+                        vm.prz_results.push([].concat(tmp_s,tmp)); // query the results and log up in the form of AN
+                        
+                        // Till now the output is ['PRIZ_CAT','name</br>name_en','...',...]
+        
+                        // The following code removes the '</br>' from the string in each array element
+
+                        for(let j in vm.prz_results){
+                            for(let nameList of vm.prz_results[j]){
+                                    vm.prz_results[j] = vm.prz_results[j].map(item => {return item.replace('</br>','')});
+                            }
+                        }
+                        // Till now the output is striped of '</br>'
+
+                        // The following code does the following three procedures
+                        //      1. 
+                    }
+            }
+        },
+        methods:  {
+            output: function(){
+                exportToCsv("SLEC_results.csv",this.prz_results);
+            }
+        }
+
+        })
+
+
+          /*-------------------Original code---------------------
+
+
+            // 分割每个string, 并将</br>换成空格, 并将
+
+            /* Commented out for testing purposes
+
+            let results = [];     // The results is an array
+            for(let nameList of str_results) { 
+                let temp = JSON.parse(nameList);  
+                temp = temp.map(item => {return item.replace('<br/>', ' ')})
+                results.push(temp)
+            }
+            
+            // 根据长度进行排序，名单短的放在前面
+            results = results.sort((x, y) => { return x.length - y.length;})
+            this.results = results
+
+
+            -------------------Original code---------------------*/
+
+
+
+
+
+            /*-------------------Original code---------------------
+
+            // 遍历(排除choosed)
+            for(let i = 0; i<localStorage.length; i++){
+                if (localStorage.key(i) !== 'choosed') {
+                    str_results.push(localStorage.getItem(localStorage.key(i)))
+                }
+            }
+
+            ---------------------Original code--------------------*/
+
+
+
+
+</script>
+<script src="https://vuejs.org/js/vue.js"></script>
+<script type="text/javascipt" src="js/export2csv.js"></script>
+</body>
+</html>
+
+
