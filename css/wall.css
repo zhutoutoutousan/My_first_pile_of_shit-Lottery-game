@@ -1,11 +1,115 @@
+/* *{
+    cursor: none;
+} */
+
 html, body {width: 100%; height: 100%;}
+
+/*  The position of the lottery sphere */ 
+#myCanvas  {
+    position: absolute;
+    top:  20%;
+    left: -25%;
+}
+/*  The position of the lottery sphere */ 
+
+/* The style of company name container and its contents */
+/* ?: The use of relative option will cause font load to fail */
+.TopBanner{
+    position: absolute;
+    top:    0%;
+    left:   0%;
+    width:  100%;
+    height: 300px;
+    z-index: 1;
+}
+
+.TopBanner.CompanyName {
+    position: absolute;
+    top:    5%;
+    left:   25%;
+    width:  700px;
+    height: 300px;
+}
+
+#CompanyNameText{
+    position: absolute;
+    width:  1000px;
+    height: 250px;
+    margin: 20px;
+    padding: 10px 10px 10px 10px;
+    font-family: canvasFont1;
+    font-size : 55px;
+    text-align: center;
+    background-image: url("../img/comname.png");
+    background-size: 1000px 250px;
+    background-position: 5% 70%;
+    background-repeat: no-repeat;
+
+}
+
+#TableBody {
+    display: block;
+    position: absolute;
+    top: 35%;
+    right: 1.5%;
+    width: 1000px;
+    height: 600px;
+    border: none;
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 5px gold solid;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-family: canvasFont1;
+    font-size: 38px;
+    color: gold;
+    padding: 10px 10px 10px 10px;
+    background-color: red;
+    cursor: none;
+}
+
+#TableBody::-webkit-scrollbar {
+    display: none;
+}
+
+th, td{
+    text-align: left;
+    padding: 5px;
+}
+
+
+
+
+#button-download{
+    display: none;
+    position: absolute;
+    top:5%;
+    left:5%;
+    background-color: #008CBA;
+}
+
+#undo{
+    display: none;
+}
+
+
+
+
+
+
+
 .wall {width: 100%; height: 100%;
-    background-image: url(../img/icon-wall.jpg);
+    background-image: url(../img/icon-wall-new.jpg);
     overflow: hidden;
     background-color: #121936;
     background-size: 100% 100% ;
     background-position: center center;
-    background-repeat: no-repeat;}
+    background-repeat: no-repeat;
+    z-index:    -1;
+}
+.wall.result{
+    background-image: url(../img/icon-empty.png);
+}
 .photos-wall {width:100%; height:100%;}
 .messages {width: 30%;  float: left;  position: relative; top: 52px; left: 0}
 
@@ -72,7 +176,7 @@ html, body {width: 100%; height: 100%;}
 .wall .pos-17{top:190px; left:105px;width:100px;height:100px;}
 
 .wall .pos-18{top:220px; left:210px;width:110px;height:110px;}
-
+    
 .wall .pos-19{top:250px; left:325px;width:85px;height:85px;}
 .wall .pos-20{top:245px; left:415px;width:75px;height:75px;}
 .wall .pos-21{top:265px; left:500px;width:85px;height:85px;}

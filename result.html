@@ -8,6 +8,12 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/wall.css">
     <style type="text/css">
+        #button-download{
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #008CBA;
+        }
         .wall { 
             overflow: scroll;
             background-repeat: repeat;
@@ -47,14 +53,14 @@
     </style>
 </head>
 <body>
-<div id="main" class="wall">
+<div id="main" class="wall result">
     <div class="result-title">获奖名单</div>
     <div class="result-list" v-for="result in prz_results">
         <div v-for="item in result">
             {{item}}
         </div>
-        <button v-on:click="output">下载名单 </button>
     </div>
+    <button v-on:click="output" id="button-download">下载名单 </button>
 </div>
 
 <!-- <script type="text/javascript" src="js/vue.js"></script> -->
@@ -98,8 +104,8 @@ function exportToCsv(filename, rows) {
                 link.setAttribute("download", filename);
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
-                // link.click();   // We don't want to click the link automatically
-                // document.body.removeChild(link);  // Same as above
+                link.click();   // We don't want to click the link automatically
+                document.body.removeChild(link);  // Same as above
             }
         }
     }

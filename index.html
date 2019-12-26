@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta name="screen-orientation" content="portrait">
@@ -8,64 +8,75 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/wall.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <link rel="preload" as="font" href="font/XZXK.ttf" type="font/ttf">
 </head>
 <body>
 <div id="main" class="wall">
     <div class="result-btn">
-       <a id="motherfucker" href="./result.html" target="_blank">获奖名单</a> 
-       <!-- Link -->
-       <!-- The blurring effect only happens here with the wall  -->
+       <a id="motherfucker" href="./result.html" target="_blank" accesskey="l">获奖名单</a> 
     </div>
 </div>
-<!-- in source.js >>149 that's where results been shown  -->
 <div id="result" class="result">
 </div>
-<!-- You need to change the v-for statement to the
-    query into the bnts object while showing the name  -->
-<!-- v-for= " in btns    -->
+<div class="TopBanner">
+    <div class="TopBanner CompanyName">
+        <p id="CompanyNameText" class="TopBanner">
+            <br><br><br><br><br>
+            全世界最牛逼电子有限公司</p>
+    </div>
+</div> 
+<div class="ResultsDisplay">
+    <div class="ResultsDisplay ResultTable"></div>
+        <table id="TableBody" class="ResultsDisplay ResultTable">
+            <tr>
+                <th>姓名</th>
+                <th>工号</th>
+                <th>部门</th>
+            </tr>
+        </table>
+    <div class="ResultsDisplay PrizeCategory"></div>
+</div>
+
 <div id="tools" class="tools">
      <button
         v-for="value in btns" 
         @click="onClick(value)"
         class="pure-button"
         :class="{ 'button-error': selected == value}"
-       >{{value}}</button> 
-    <!-- RELATE1-- v-for="value in btns[0]" -->
-
+       >(✿◠‿◠)</button> 
     <button
-        v-for="names in priz"
+        v-for="(names, index) in priz"
+        :key="index"
         @click="judge(names)"
-        class="pure-button button1">
+        class="pure-button button1"
+        :class="{ 'button-error': c_priz == names}">
         {{names}}
     </button>
-
     <button
+       id="SndS"
        class="pure-button"
-       @click="toggle"
+       @click="toggle"                                                          
        :class="{'button-secondary': !running,
-               'button-success': running}">{{running?'停!':'开始'}}</button>
-    <button class="pure-button button-warning" @click="reset">重置</button>
-    <!-- 
-    <button class="CCS learning required" 
-    -->
-
+               'button-success': running}"
+        accesskey="s">{{running?'停!':'开始'}}
+        </button>
+    <button id="stop" class="pure-button button-warsning" @click="reset" accesskey="r">重置</button>
+    <button v-on:click="output" id="button-download">output</button>
+    <button id="undo" @click="undo">undo</button>
+    <div 
+    class="Category" 
+    >{{c_priz}}</div>
 </div>
+<!-- <script src="https://vuejs.org/js/vue.js"></script> -->
+<script src="js/vue.js"></script>
 <script type="text/javascript" src="js/zepto.js"></script>
-<!-- <script type="text/javascript" src="js/vue.js"></script> -->
-<!--
-    PROBLEM: Vue.js devtool requires a full production of Vue.js
-    Solution: Uncomment the following code and comment out the code
-              above to switch
- -->
- 
-<script src="https://vuejs.org/js/vue.js"></script>
-
 <script type="text/javascript" src="js/tagcanvas.js"></script>
 <script type="text/javascript" src="js/member.js"></script>
 <script type="text/javascript" src="js/source.js"></script>
-<!-- The code below is added by Tian Shao -->
 <script type="text/javascript" src="data/read-csv.js"></script>
 <script type="text/javascript" src="js/export2csv.js"></script>
 <script type="text/javascript" src="js/artist.js"></script>
+<script type="text/javascript" src="js/lucky.js"></script>
 </body>
 </html>
