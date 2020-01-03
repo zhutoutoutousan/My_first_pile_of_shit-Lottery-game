@@ -65,6 +65,7 @@ html, body {width: 100%; height: 100%;}
     color: gold;
     padding: 10px 10px 10px 10px;
     background-color: red;
+    table-layout: fixed;
     cursor: none;
 }
 
@@ -72,9 +73,18 @@ html, body {width: 100%; height: 100%;}
     display: none;
 }
 
+tr{
+    height: 10%;
+    width: 100%;
+    padding: 100px;
+}
+
 th, td{
-    text-align: left;
-    padding: 5px;
+    text-align: center;
+    padding: 10px;
+    height: 20%;
+    width: 33%;
+    letter-spacing: 20px;
 }
 
 
