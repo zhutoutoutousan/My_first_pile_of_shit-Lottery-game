@@ -106,18 +106,13 @@
             }
         };
 
-
-      
-        // Function:
-        // Usage:
-        // Modification guide:
-        var DisplayPhoto = function(prized_p){
-            var phtml = [];
-        };
-
         // Function: 
         // Usage:
-        // Modification guide:
+        // Modification guide:  
+        //      1. Robustness improvement: Add the 'status' flag to indicate whether the 
+        //         system lock is enabled. Once enabled, desirably, during the jumpscare
+        //         paradigm, all of the keyboard shortcuts are disabled except the 'T' 
+        //         button, cancelling the jumpscare display
         var IDclick = (k) => $(`#${k}`).trigger('click');   
         var assignHotKey = function(){
             document.addEventListener("keyup", function(e) {
@@ -176,8 +171,8 @@
             var canvas = document.createElement('canvas');
             canvas.id = 'myCanvas';
             canvas.style.position = 'absolute';
-            canvas.style.left = '-14%';
-            canvas.style.top = '24%';
+            canvas.style.left = '-18%';
+            canvas.style.top = '33%';
             canvas.width = 1500; // document.body.offsetWidth:1920
             canvas.height = 700; // document.body.offsetHeight:979
             document.getElementById('main').appendChild(canvas);
@@ -217,7 +212,7 @@
             .map(function(m){                           // of candidates and log on
               containerChosen[getKey(m)] = 1;
               list[m.index].style.color = color;
-              return `${m.name} <br> <br> <br> ${m.Num} <br> <br> <br> ${m.Dept}`; 
+              return `${m.name} <br> ${m.Num} <br> ${m.Dept}`; 
             });
             
             console.log(container); 
@@ -405,47 +400,60 @@
         };
 
         var makePicturePath = function(processedData){
-            // todo: input<--processedData
-            // input: []
-            // output: <img ... [name].jpg...>
-        
+            let path = `${processedData[0][2]}-${processedData[0][0]}.jpg`;
+            return path;
         }
 
 
         // FUTURE WORK: Change location rules to percentage to make the page responsive
-        var CreateToggleJumpScare = function(ret){
+        var CreateToggleJumpScare = function(ret, path){
             $('#result').css({
                 position: "absolute",
-                left    : "32%",
-                top     : "30%",
+                left    : "25%",
+                top     : "16%",
                 display : "block",
                 margin  : "0px 0px 0px 0px",
-                height  : "600px",
-                width   : "800px"
+                height  : "70%",
+                width   : "45%",
+                "z-index" : "2"
            });
            $('#result').append("<div class='cat'></div");
-            $('.cat').append('<img id="fuck" src="./img/cat.jpg" style="width: 100%"  />');
-            $('.cat').append('<div class="container"></div>');
-            $('.cat').css({
-                width    : "600px",
-                height   : "650px",
-                "background-color" : "red",
-                "box-shadow" : "0 4px 8px 0 rgba(255,215,0,1), 0 6px 20px 0 rgba(255,215,0,1)",
-                "margin" : "0px 0px 0px 0px"
-            });
-                $('.container').append(`<br><p id="shit" style="line-height:1.6">${ret}</p>`);
-                $('.container').css({
-                    "text-align" : "center",
-                    padding : "0px 0px",
-                    margin  : "0px 0px 0px 0px",
-                    "font-family" : "canvasFont1"
+                $('.cat').append(`<img id="fuck" src="./img/confidential/${path}" />`);
+                $('.cat').append('<div class="container"></div>');
+                $('.cat').css({
+                    position : "absolute",
+                    left     : "10%",
+                    top      : "0%",
+                    width    : "100%",
+                    height   : "100%",
+                    "background-color" : "red",
+                    "box-shadow" : "0 4px 8px 0 rgba(255,215,0,1), 0 6px 20px 0 rgba(255,215,0,1)",
+                    "margin" : "0px 0px 0px 0px"
                 });
-                    $('#shit').css({
-                        "margin-top"    : "30px",
-                        "font-size"     : "50px",
-                        color           : "gold"
+                    $('.container').append(`<br><p id="shit" style="line-height:1.6">${ret}</p>`);
+                    $('.container').css({
+                        "text-align" : "center",
+                        padding : "0px 0px",
+                        margin  : "0px 0px 0px 0px",
+                        "font-family" : "canvasFont1"
+                    });
+                        $('#shit').css({
+                            position        : "absolute",
+                            width           : "40%",
+                            height          : "20%",
+                            left            : "55%",
+                            top             : "25%",
+                            "margin-top"    : "30px",
+                            "font-size"     : "400%",
+                            color           : "gold"
+                        })
+                    $("#fuck").css({
+                        position        : "absolute",
+                        width           : "50%",
+                        height          : "100%",
+                        left            : "0%",
+                        top             : "0%"
                     })
-
         }
 
         var ChangeBlur = function(type){
@@ -454,6 +462,9 @@
                 $('.TopBanner').addClass('mask');
                 $('.ResultsDisplay').addClass('mask');
                 $('.Category').addClass('mask');
+                $('#TableBody').css({
+                    display : "none"
+                })
                 // Can change table diplay to none if not responsive
             }
             else if(type === "off"){
@@ -461,6 +472,9 @@
                 $('.TopBanner').removeClass('mask');
                 $('.ResultsDisplay').removeClass('mask');
                 $('.Category').removeClass('mask');
+                $('#TableBody').css({
+                    display : "block"
+                })
             }
         }
 
@@ -500,8 +514,25 @@
             UpdateTable("","undo");
         }
 
+        var initializeTableScroll = function(){
+            let elem = document.getElementById("TableBody");
+            let btn = document.querySelector('button.scroll-to-table-end');
+            btn.addEventListener('click', () => {
+                window.scrollTo(0,elem.offsetHeight); // Problems resides with scrolling window
+            });
+        }
+
+        var TableScrollToBottom = function(){
+            IDclick('scroll');
+        }
+
         var undoSelectedCandidate = function(){
             ;   // todo
+        }
+
+        var initializeDebugMode = function(){
+            ; // Add debug event listener that triggers after pressing the keyboard button 'B'
+              // which turns the button visible and the extensive functionalities.
         }
 
         var EnterDebugMode = function(){
@@ -568,6 +599,7 @@
                 UpdateDisplay(status,"initialize");
                 initializeButton();
                 assignHotKey();
+                initializeTableScroll();
 
             },
 
@@ -595,7 +627,15 @@
                 // Modification guide:
                 toggle: function(){
 
+                    if(document.getElementById("result"))
+                    {
+                        $('#result').css('display', 'none');
+                        $('#result').empty();
+                        ChangeBlur("off");
+                    }
+
                     if(this.running){
+
 
                         TagCanvas.SetSpeed('myCanvas', speed());
                         var ret = lottery(this.selected); 
@@ -605,11 +645,13 @@
                         }
                         TagCanvas.Reload('myCanvas');
                         setTimeout(function(){
-                            let processedData = processData(ret);
+                            let processedData = processData(ret);     // ["name","number","dept"]
+                            // console.log(processedData);
                             logData(processedData);
                             UpdateTable(processedData,"toggle");
-                            // CreateToggleJumpScare(ret);
-                            CreateToggleJumpScare(processedData);
+                            TableScrollToBottom();
+                            let path = makePicturePath(processedData);
+                            CreateToggleJumpScare(ret, path);
                             ChangeBlur("on");
                            // FONT PERFORMANCE ISSUE:
                            // https://www.freecodecamp.org/news/web-fonts-in-2018-f191a48367e8/
