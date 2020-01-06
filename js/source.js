@@ -15,6 +15,72 @@
             else{
                 console.log("ERROR: Wrong argument input");
             }
+        };
+
+        var modifyObjectIndexedProperty = function(input){
+            ;
+        }
+
+        // Function:
+        // Usage:
+        // Dependencies:
+        var localStorageOperations = function(name, operation, data, query, modtype, modData){
+            switch(operation){
+                case 'GET':
+                    return JSON.parse(localStorage.getItem(`${name}`))||{};
+                case 'ADD':
+                    if(data)
+                    localStorage.setItem(`${name}`,JSON.stringify(data));
+                    else
+                    console.error(`ERROR in localStorageOperations: No data input`);
+                break;
+                case 'DEL':
+                    localStorage.removeItem(`${name}`);
+                break;
+                case 'MOD':
+                    if(query && modtype && modData){
+                        let tempData = JSON.parse(localStorage.getItem(`${name}`));
+
+                    }
+                    else{
+                        console.error(`ERROR in localStorageOperations: Not enough input for MOD`);
+                    }
+                break;
+                default :
+                    console.error(`ERROR in localStorageOperations: operation of ${name} not specified `);
+            }
+        }
+
+        var updateLocalStrage = function(name, input, operations){
+            switch(operations){  
+            
+            case 'append':
+                switch(typeof(input)){
+                    case 'number':
+                        ;
+                    break;
+                    case 'object':
+                        if(Array.isArray(input)){
+
+                        }
+                        else{
+
+                        }
+                    break;
+                    default:
+                        ;
+
+                }
+            case 'delete':
+                ;
+            break;
+            case 'modify':
+                ;
+            break;
+            case 'clear':
+                ;
+            break;
+            }
         }
 
 
@@ -44,7 +110,8 @@
         // Function:
         // API guide:
         var getKey = function(item){
-            return item.name + '-' + item.phone;  
+            return item.name + '-' + item.Dept;  // GetKey function doesn't correspond to
+                                                  // the member given(no phone info)
         };
         
         // Function:    This method works with tagcanvas.js, check tagcanvas documentation to
@@ -59,7 +126,7 @@
             member.forEach(function(item, index){ 
                 item.index = index;
                 var key = getKey(item); 
-                var color = (choosedAct[key]||choosedAll[key]||choosedLuk[key]) ? 'gold' : 'red';
+                var color = (choosedAct[key]||choosedAll[key]||choosedLuk[key]) ? 'gold' : 'blue';
                 html.push(`<li><a href="#" style="color: ${color}; font-family: canvasFont1;">${item.name}</a></li>`);
             }); 
             html.push('</ul>');
@@ -160,6 +227,9 @@
                     break;
                     case 8:
                         IDclick("undo");
+                    break;
+                    case 80:
+                        IDclick("deBug");
                 }
             }, false);
         }
@@ -191,6 +261,7 @@
             let container = status == "幸运演员奖" ? artist 
                           : status == "幸运之星奖" ? lucky
                           : member;
+            console.log(container);
             let containerChosen = status == "幸运演员奖" ? choosedAct 
                                 : status == "幸运之星奖" ? choosedLuk
                                 : choosedAll;
@@ -212,7 +283,8 @@
             .map(function(m){                           // of candidates and log on
               containerChosen[getKey(m)] = 1;
               list[m.index].style.color = color;
-              return `${m.name} <br> ${m.Num} <br> ${m.Dept}`; 
+              return `${m.name}<br>${m.name_en}<br>${m.Dept}`; 
+              // The number should be changed into English name
             });
             
             console.log(container); 
@@ -228,7 +300,8 @@
 
         // Function:
         // API guide:
-        var logData = function(lottered){
+        var logData = function(lottering){
+            var lottered = [lottering.join('-')];
             var status = localStorage.flag;
             if(!localStorage.getItem(localStorage.flag))
             {localStorage.setItem(status, JSON.stringify(lottered));}
@@ -240,30 +313,43 @@
         }
 
         // Function:
+        // Input:  '路人甲 <br> Jia Luren <br> 僵尸研究所(Zombie research center)' 
+        // Output: ['路人甲','Jia Luren', '僵尸研究所']
         // API guide:
+        // ISSUE: Doesn't work with the UpdateTable() or addRow()
         var processData = function(data){
-
-            let rawData = data;
-            let newData = [];
-            if(rawData){
-                for(let i in rawData){
-                    newData[i] = rawData[i]
-                    .replace(/<br>|\s*\([^)]*\)/g,"")
-                    .split(/\s/g)
-                    .filter((el) => el!="");
-                }
-            }
+            let rawData = data[0];
+            let newData = rawData.split('<br>');
+            console.log(newData);
             return newData;
         }
 
         // Function:
         // API guide:
         var addRow = function(data){
-            var table = document.getElementById("TableBody");
+            let table = document.getElementById("TableBody");
+            //for(i in data){
+                let NAME = data[0];
+                let NUMBER = data[1];
+                let DEPT = data[2];
+                var rowCount = table.rows.length;
+                var row = table.insertRow(rowCount);
+                row.id = `${localStorage.flag}-tb`;
+                row.insertCell(0).innerHTML = NAME;
+                row.insertCell(1).innerHTML = NUMBER;
+                row.insertCell(2).innerHTML = DEPT;
+            //}
+        }
+
+        var addRowByArray = function(data){
+            console.log(data);
+            let splitData;
+            let table = document.getElementById("TableBody");
             for(i in data){
-                let NAME = data[i][0];
-                let NUMBER = data[i][1];
-                let DEPT = data[i][2];
+                splitData = data[i].split('-')
+                let NAME = splitData[0];
+                let NUMBER = splitData[1];
+                let DEPT = splitData[2];
                 var rowCount = table.rows.length;
                 var row = table.insertRow(rowCount);
                 row.id = `${localStorage.flag}-tb`;
@@ -294,7 +380,7 @@
                 ClearTable(status);
             }
             else if(type === "postselection"){
-                addRow(data);
+                addRowByArray(data);
             }
             else if(type === "toggle"){
                 addRow(data);
@@ -374,33 +460,73 @@
             }
         };
 
+
+        // Input: status: localStorage.flag
         var UpdateDisplay = function(status,type){
-            display = $(".Category");
-            if(type === "initialize"){
-            display.html = status ? status : "幸运大抽奖";
-            display.css({
-                position: "absolute",
-                display:  "block",
-                right:    "45%",
-                top:      "-1350%",
-                "background-color": "none",
-                color:    "gold",
-                margin:   "1px 1px 1px 1px",
-                border:   "1px",
-                "font-family": "canvasFont1",
-                "font-size": "50px"
-            })
-            }
-            else if(type === "change"){
-                console.log("changed");
+            let display = $(".Category");
+            let total = 0;
+            let exist = localStorage.getItem(status);
+            if(exist){
+                switch(status){
+                    case '四等奖':
+                        total = 20;
+                    break;
+                    case '三等奖':
+                        total = 15;
+                    break;
+                    case '二等奖':
+                        total = 10;
+                    break;
+                    case '一等奖':
+                        total = 2;
+                    break;        
+                    case '幸运演员奖':
+                        total = 10;
+                    break;
+                    case '特等奖':
+                        total = 1;
+                    break;
+                    case '老板奖':
+                        total = 5;
+                    break;
+                    case '幸运之星奖':
+                        total = 5;
+                    break;
+                }
+                
+                let currentNumber = JSON.parse(exist).length;
+
+                if(type === "initialize"){
+                display.html = `${status ? status : "幸运大抽奖"}:${currentNumber}/${total}`;  // Check if status has value when initialized(RESET)
+                display.css({
+                    position: "absolute",
+                    display:  "block",
+                    right:    "45%",
+                    top:      "-1350%",
+                    "background-color": "none",
+                    color:    "gold",
+                    margin:   "1px 1px 1px 1px",
+                    border:   "1px",
+                    "font-family": "canvasFont1",
+                    "font-size": "50px"
+                })
+                }
+                else if(type === "change"){
+                    console.log("changed");
+                }
+                else{
+                    console.log("something went wrong");
+                }
             }
             else{
-                console.log("something went wrong");
+                console.log("ERROR in UpdateDisplay: Wrong status input");
             }
         };
 
         var makePicturePath = function(processedData){
-            let path = `${processedData[0][2]}-${processedData[0][0]}.jpg`;
+            let temp = processedData[2].replace(/<br>|\s*\([^)]*\)/g,"");
+            console.log(temp);
+            let path = `${temp}-${processedData[0]}.jpg`;
             return path;
         }
 
@@ -518,7 +644,7 @@
             let elem = document.getElementById("TableBody");
             let btn = document.querySelector('button.scroll-to-table-end');
             btn.addEventListener('click', () => {
-                window.scrollTo(0,elem.offsetHeight); // Problems resides with scrolling window
+                elem.scrollTo(0,elem.offsetHeight); // Problems resides with scrolling window
             });
         }
 
@@ -530,30 +656,47 @@
             ;   // todo
         }
 
-        var initializeDebugMode = function(){
-            ; // Add debug event listener that triggers after pressing the keyboard button 'B'
-              // which turns the button visible and the extensive functionalities.
-        }
 
-        var EnterDebugMode = function(){
-            ;   // Make the buttons and delete selection at the table visible
-        }
 
-        var ExitDebugMode = function(){
-            ;   // Make the buttons and delete selection at the table invisible
-        }
-
-        var batchToggleVisibilityById = function(id,type){
+        var batchToggleVisibilityByClassName = function(className,type){
             if(type === "hide"){
-            $(`#${id}`).hide();
+            $(`.${className}`).hide();
             }
             else if(type === "show"){
-            $(`#${id}`).show();
+            $(`.${className}`).show();
+            }
+            else if(type === "toggle"){
+                if($(`.${className}`)){
+                    if($(`.${className}`).css.display == 'none'){
+                        $(`.${className}`).show();                        
+                    }
+                    else if($(`.${className}`).css.display){
+                        $(`.${className}`).hide();                        
+                    }
+                    else{
+                        console.log('Error in toggleVisibility function');
+                    }
+                }
+                else{
+                    console.log(`ERROR in toggleVisibilityById(${className},${type}: class doesn't exist`);
+                }
             }
             else{
-                console.log(`ERROR in toggleVisibilityById(${id},${type}: Wrong input`);
+                console.log(`ERROR in toggleVisibilityById(${className},${type}: Wrong input`);
             }
         }
+
+        var initializeDebugMode = function(){
+            let deb = document.getElementById("deBug");
+            deb.addEventListener('click',() => {
+                batchToggleVisibilityByClassName('pure-button','toggle');
+            });
+        }
+
+        var LatchSelectionExceptJumpscareDestory = function(){
+            ;
+        }
+
 
 
         new Vue({
@@ -600,7 +743,7 @@
                 initializeButton();
                 assignHotKey();
                 initializeTableScroll();
-
+                initializeDebugMode();
             },
 
             methods: {
@@ -639,14 +782,14 @@
 
                         TagCanvas.SetSpeed('myCanvas', speed());
                         var ret = lottery(this.selected); 
-                        if (!ret.length) {+
+                        if (!ret.length) {
                             $('#result').css('display', 'block').html('<span>已抽完</span>');
                             return
                         }
                         TagCanvas.Reload('myCanvas');
                         setTimeout(function(){
                             let processedData = processData(ret);     // ["name","number","dept"]
-                            // console.log(processedData);
+                            console.log(`processedData is ${processedData}`);
                             logData(processedData);
                             UpdateTable(processedData,"toggle");
                             TableScrollToBottom();
@@ -655,8 +798,6 @@
                             ChangeBlur("on");
                            // FONT PERFORMANCE ISSUE:
                            // https://www.freecodecamp.org/news/web-fonts-in-2018-f191a48367e8/
-                     
-                     
                         }, 10);
                     } else {
                         TagCanvas.SetSpeed('myCanvas', [5, 1]);
@@ -673,6 +814,7 @@
                     localStorage.flag = pz; 
                     let newCat = localStorage.getItem('flag');
                     let ChangedData = localStorage.getItem(newCat);
+                    console.log(ChangedData);
                     if(ChangedData){
                         UpdateTable(JSON.parse(ChangedData),"postselection");
                     }
@@ -682,7 +824,7 @@
                     this.c_priz = pz === "幸运之星奖" ? "Lucky Star"
                                 : pz === "老板奖" ? "Lucky Boss"
                                 : pz;
-                    console.log(this.c_priz);
+                    console.log(`c_priz is ${this.c_priz}`);
                 },
 
                 // Function:
