@@ -1,5 +1,8 @@
     (function(){
 
+
+        // ISSUE: 抽中撤销后抽奖球显示没有更新
+
         // Function:     This function inputs an object, and delete its
         //               last property and returns the object
         // Usage:        Declare the function(recommended in the front)
@@ -83,6 +86,16 @@
             }
         }
 
+        var verifyIfAFileExistByPath = function(path){
+            let myLog = new File(`${path}`);
+            let status = false;
+            if(myLog.exists()){
+                status = true;
+            }
+
+            return status;
+        }
+
 
         // Contents:
         var choosedAct = JSON.parse(localStorage.getItem('choosedAct')) || {};
@@ -126,7 +139,7 @@
             member.forEach(function(item, index){ 
                 item.index = index;
                 var key = getKey(item); 
-                var color = (choosedAct[key]||choosedAll[key]||choosedLuk[key]) ? 'gold' : 'blue';
+                var color = (choosedAct[key]||choosedAll[key]||choosedLuk[key]) ? 'gold' : 'Magenta';   // Change sphere color
                 html.push(`<li><a href="#" style="color: ${color}; font-family: canvasFont1;">${item.name}</a></li>`);
             }); 
             html.push('</ul>');
@@ -214,7 +227,12 @@
                         IDclick("幸运之星奖");
                     break;
                     case 32:    // 'SPACE'
+                        if(vm.currentnumber<vm.total){
                         IDclick("SndS");
+                        }
+                        else{
+                            console.log('WARNING in toggle: Candidate overflow');
+                        }
                     break; 
                     case 82:    // 'R' RESET
                         IDclick("stop");
@@ -241,8 +259,8 @@
             var canvas = document.createElement('canvas');
             canvas.id = 'myCanvas';
             canvas.style.position = 'absolute';
-            canvas.style.left = '-18%';
-            canvas.style.top = '33%';
+            canvas.style.left = '-16%';
+            canvas.style.top = '28%';
             canvas.width = 1500; // document.body.offsetWidth:1920
             canvas.height = 700; // document.body.offsetHeight:979
             document.getElementById('main').appendChild(canvas);
@@ -324,6 +342,11 @@
             return newData;
         }
 
+
+        var BindRowById = function(row, idName){
+            
+        }
+
         // Function:
         // API guide:
         var addRow = function(data){
@@ -336,6 +359,9 @@
                 var row = table.insertRow(rowCount);
                 row.id = `${localStorage.flag}-tb`;
                 row.insertCell(0).innerHTML = NAME;
+                // ADD EACH ID TO THE INSERTED CELL and use CSS multiple selector to change style individually
+                // row.insertCell(0).id = `${NAME}`;  //ADDED  
+                // https://developer.mozilla.org/en-US/docs/Web/API/HTMLTableElement/rows
                 row.insertCell(1).innerHTML = NUMBER;
                 row.insertCell(2).innerHTML = DEPT;
             //}
@@ -463,63 +489,61 @@
 
         // Input: status: localStorage.flag
         var UpdateDisplay = function(status,type){
-            let display = $(".Category");
-            let total = 0;
-            let exist = localStorage.getItem(status);
-            if(exist){
-                switch(status){
-                    case '四等奖':
-                        total = 20;
-                    break;
-                    case '三等奖':
-                        total = 15;
-                    break;
-                    case '二等奖':
-                        total = 10;
-                    break;
-                    case '一等奖':
-                        total = 2;
-                    break;        
-                    case '幸运演员奖':
-                        total = 10;
-                    break;
-                    case '特等奖':
-                        total = 1;
-                    break;
-                    case '老板奖':
-                        total = 5;
-                    break;
-                    case '幸运之星奖':
-                        total = 5;
-                    break;
-                }
-                
-                let currentNumber = JSON.parse(exist).length;
+            switch(type){
+                case 'initialize':
+                    if(!status){
+                    vm.c_priz = '幸运大抽奖';
+                    vm.currentnumber = 7;
+                    vm.total = 7;
+                    }
+                    else{
+                        console.log('ERROR in UpdateDisplay: Display already initialized');
+                    }
+                break;
+                case 'onchange':
+                    if(status){
+                    switch(status){
+                        case '四等奖':
+                            vm.total = 20;
+                        break;
+                        case '三等奖':
+                            vm.total = 15;
+                        break;
+                        case '二等奖':
+                            vm.total = 10;
+                        break;
+                        case '一等奖':
+                            vm.total = 2;
+                        break;        
+                        case '幸运演员奖':
+                            vm.total = 10;
+                        break;
+                        case '特等奖':
+                            vm.total = 1;
+                        break;
+                        case '老板奖':
+                            vm.total = 666;
+                        break;
+                        case '幸运之星奖':
+                            vm.total = 1;
+                        break;
+                         }
+                        
+                        if(localStorage.getItem(status))
+                        {
+                            vm.currentnumber = JSON.parse(localStorage.getItem(status)).length; 
+                        }
+                        else{
+                            vm.currentnumber = 0;
+                        }
 
-                if(type === "initialize"){
-                display.html = `${status ? status : "幸运大抽奖"}:${currentNumber}/${total}`;  // Check if status has value when initialized(RESET)
-                display.css({
-                    position: "absolute",
-                    display:  "block",
-                    right:    "45%",
-                    top:      "-1350%",
-                    "background-color": "none",
-                    color:    "gold",
-                    margin:   "1px 1px 1px 1px",
-                    border:   "1px",
-                    "font-family": "canvasFont1",
-                    "font-size": "50px"
-                })
-                }
-                else if(type === "change"){
-                    console.log("changed");
-                }
-                else{
-                    console.log("something went wrong");
-                }
-            }
-            else{
-                console.log("ERROR in UpdateDisplay: Wrong status input");
+                      }
+                      else{
+                          console.log("ERROR in UpdateDisplay: ls-flag not defined ");
+                      }
+                break;
+                default:
+                    console.log('ERROR in UpdateDisplay: wrong type input');
             }
         };
 
@@ -533,6 +557,8 @@
 
         // FUTURE WORK: Change location rules to percentage to make the page responsive
         var CreateToggleJumpScare = function(ret, path){
+            console.log(ret);
+            let retted = ret[0].replace(/\(/,'<br>').replace(/\)/,'');
             $('#result').css({
                 position: "absolute",
                 left    : "25%",
@@ -544,19 +570,26 @@
                 "z-index" : "2"
            });
            $('#result').append("<div class='cat'></div");
+                try{
                 $('.cat').append(`<img id="fuck" src="./img/confidential/${path}" />`);
+                console.log(path);
+                }
+                catch{
+                $('.cat').append(`<img id="fuck" src="./img/confidential/unknown.jpg" />`);   
+                console.log(`Could not find picture ${path}`); 
+                }
                 $('.cat').append('<div class="container"></div>');
                 $('.cat').css({
                     position : "absolute",
-                    left     : "10%",
+                    left     : "-40%",
                     top      : "0%",
-                    width    : "100%",
+                    width    : "180%",
                     height   : "100%",
                     "background-color" : "red",
                     "box-shadow" : "0 4px 8px 0 rgba(255,215,0,1), 0 6px 20px 0 rgba(255,215,0,1)",
                     "margin" : "0px 0px 0px 0px"
                 });
-                    $('.container').append(`<br><p id="shit" style="line-height:1.6">${ret}</p>`);
+                    $('.container').append(`<br><p id="shit" style="line-height:1.6">${retted}</p>`);
                     $('.container').css({
                         "text-align" : "center",
                         padding : "0px 0px",
@@ -565,17 +598,17 @@
                     });
                         $('#shit').css({
                             position        : "absolute",
-                            width           : "40%",
+                            width           : "90%",
                             height          : "20%",
-                            left            : "55%",
-                            top             : "25%",
+                            left            : "21%",
+                            top             : "10%",
                             "margin-top"    : "30px",
-                            "font-size"     : "400%",
+                            "font-size"     : "500%",
                             color           : "gold"
                         })
                     $("#fuck").css({
                         position        : "absolute",
-                        width           : "50%",
+                        width           : "31%",
                         height          : "100%",
                         left            : "0%",
                         top             : "0%"
@@ -644,7 +677,8 @@
             let elem = document.getElementById("TableBody");
             let btn = document.querySelector('button.scroll-to-table-end');
             btn.addEventListener('click', () => {
-                elem.scrollTo(0,elem.offsetHeight); // Problems resides with scrolling window
+                elem.scrollTo(0,elem.offsetHeight+6300); // Problems resides with scrolling window  elem.offsetHeight is the original offsetHeight
+                // $('#TableBody').scrollTop($('#TableBody').height());
             });
         }
 
@@ -659,6 +693,8 @@
 
 
         var batchToggleVisibilityByClassName = function(className,type){
+            console.log('Debug mode has been toggled')
+            console.log(className);
             if(type === "hide"){
             $(`.${className}`).hide();
             }
@@ -667,14 +703,14 @@
             }
             else if(type === "toggle"){
                 if($(`.${className}`)){
-                    if($(`.${className}`).css.display == 'none'){
-                        $(`.${className}`).show();                        
+                    if($(`.${className}`).css("opacity") == '0'){
+                        $(`.${className}`).css("opacity") = 1;                        
                     }
-                    else if($(`.${className}`).css.display){
-                        $(`.${className}`).hide();                        
+                    else if($(`.${className}`).css("opacity") != '1'){
+                        $(`.${className}`).css("opacity") = 0;                       
                     }
                     else{
-                        console.log('Error in toggleVisibility function');
+                        console.log('Error in toggleVisibility function：');
                     }
                 }
                 else{
@@ -711,7 +747,9 @@
                        "老板奖","幸运之星奖"],
                 count: ["0","1","2","3","4","5","6"],
                 results: [],
-                prz_results : []
+                prz_results : [],
+                total: 0,
+                currentnumber: 0
             },
             mounted () {
 
@@ -788,7 +826,7 @@
                         }
                         TagCanvas.Reload('myCanvas');
                         setTimeout(function(){
-                            let processedData = processData(ret);     // ["name","number","dept"]
+                            let processedData = processData(ret);     // ["name","name_en","dept"]
                             console.log(`processedData is ${processedData}`);
                             logData(processedData);
                             UpdateTable(processedData,"toggle");
@@ -796,6 +834,7 @@
                             let path = makePicturePath(processedData);
                             CreateToggleJumpScare(ret, path);
                             ChangeBlur("on");
+                            UpdateDisplay(localStorage.flag, 'onchange'); //added
                            // FONT PERFORMANCE ISSUE:
                            // https://www.freecodecamp.org/news/web-fonts-in-2018-f191a48367e8/
                         }, 10);
@@ -824,6 +863,7 @@
                     this.c_priz = pz === "幸运之星奖" ? "Lucky Star"
                                 : pz === "老板奖" ? "Lucky Boss"
                                 : pz;
+                    UpdateDisplay(localStorage.flag,"onchange");
                     console.log(`c_priz is ${this.c_priz}`);
                 },
 
@@ -831,6 +871,7 @@
                 // Modification guide:
                 undo: function(){
                     undoLastChange();  
+                    UpdateDisplay(localStorage.flag,"onchange");
                 },
 
                 // Function:
